@@ -1,4 +1,5 @@
-numpy
-scipy
-matplotlib
-mpmath
+# Versiones con las que se generó el informe (Python 3.12) y se verificó que los resultados son idénticos.
+numpy==2.5.4
+scipy==1.18.1
+matplotlib==3.11.2
+mpmath==1.3.0

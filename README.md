@@ -3,7 +3,7 @@
 Proyecto de investigación — Probabilidad y Estadística Aplicada, Universidad Católica del Uruguay.
 
 ## Requisitos
-- Python 3.10 o superior (probado con 3.12)
+- Python 3.12
 
 ## Ejecución
 ```bash

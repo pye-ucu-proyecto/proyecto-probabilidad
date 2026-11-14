@@ -19,6 +19,7 @@ import os
 import matplotlib
 matplotlib.use("Agg")  # backend sin ventana: sólo guarda archivos
 import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 import numpy as np
 from scipy import stats
 
@@ -40,7 +41,17 @@ C1, C2, C3 = "#1f4e79", "#c0504d", "#4f9d5d"   # paleta sobria
 RES = {}          # diccionario con todos los resultados numéricos
 
 
+class _ComaDecimal(ScalarFormatter):
+    """Marcas de los ejes con coma decimal (como en el texto del informe)."""
+    def __call__(self, x, pos=None):
+        return super().__call__(x, pos).replace(".", ",")
+
+
 def guardar(fig, nombre):
+    for ax in fig.axes:
+        for eje in (ax.xaxis, ax.yaxis):
+            if eje.get_scale() == "linear":
+                eje.set_major_formatter(_ComaDecimal())
     fig.tight_layout()
     fig.savefig(os.path.join(FIGS, nombre))
     plt.close(fig)
@@ -73,17 +84,18 @@ def lyapunov(r, x0, trans=1000, n=5000):
     x = iterar_vec(np.full_like(r, x0), r, trans)
     s = np.zeros_like(r)
     for _ in range(n):
-        x = r * x * (1.0 - x)
         s += np.log(np.abs(r * (1.0 - 2.0 * x)) + 1e-300)
+        x = r * x * (1.0 - x)
     return s / n
 
 
 def detectar_periodo(r, x0, trans=5000, maxp=64, tol=1e-7):
     """Período del atractor (None si no se detecta período <= maxp)."""
     x = iterar_vec(np.array([x0]), r, trans)[0]
-    tr = orbita(x, r, 4 * maxp)
+    ncomp = 256                       # comparaciones por período candidato
+    tr = orbita(x, r, ncomp + maxp)
     for p in range(1, maxp + 1):
-        if np.max(np.abs(tr[p:] - tr[:-p])) < tol:
+        if np.max(np.abs(tr[p:p + ncomp] - tr[:ncomp])) < tol:
             return p
     return None
 
@@ -102,7 +114,7 @@ fig, axs = plt.subplots(4, 2, figsize=(7, 8), sharex=True)
 for ax, (r, nom) in zip(axs.ravel(), regimenes):
     t = orbita(X0, r, 60)
     ax.plot(range(61), t, "o-", ms=2.5, lw=0.8, color=C1)
-    ax.set_title(f"$r={r}$ ({nom})")
+    ax.set_title(f"$r={str(r).replace('.', '{,}')}$ ({nom})")
     ax.set_ylim(-0.05, 1.05)
     ax.set_ylabel("$x_n$")
 for ax in axs[-1]:
@@ -317,7 +329,7 @@ ax.plot(ks, Tmedia, "o-", ms=4, color=C1, label="promedio (500 semillas base)")
 ax.plot([t["k"] for t in tabla_sep], [t["T"] for t in tabla_sep], "s", ms=5,
         color=C2, label="semilla 0,314159265")
 ax.plot(ks, pend * ks + ordn, "--", color="k", lw=0.8,
-        label=f"ajuste lineal (pendiente {pend:.2f})")
+        label=f"ajuste lineal (pendiente {pend:.2f})".replace(".", ","))
 ax.set_xlabel("$k$ ($\\delta=10^{-k}$)"); ax.set_ylabel("$T$: primera iteración con $|x_n-y_n|>0{,}1$")
 ax.legend()
 guardar(fig, "fig7_tiempo_separacion.png")
