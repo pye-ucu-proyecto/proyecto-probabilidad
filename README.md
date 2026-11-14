@@ -2,9 +2,6 @@
 
 Proyecto de investigación — Probabilidad y Estadística Aplicada, Universidad Católica del Uruguay.
 
-**Integrantes:** Nombre Apellido, Nombre Apellido, Nombre Apellido
-**Docentes:** Prof. Maglis Mujica y Mag. Candido de Oliveira
-
 ## Requisitos
 - Python 3.10 o superior (probado con 3.12)
 
